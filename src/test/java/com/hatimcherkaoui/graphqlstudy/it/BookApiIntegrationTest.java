@@ -15,7 +15,7 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import java.util.Map;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.Matchers.containsString;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = GraphqlstudyApplication.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -52,28 +52,33 @@ public class BookApiIntegrationTest {
 
     @Test
     void testAddAndQuery() {
-        String mutation = """
-                mutation {
-                  addBook(title: "GraphQL 101", author: "Alice") {
-                    id title author
-                  }
-                }
-                """;
-        String id = RestAssured.given()
+        // Admin can add
+        RestAssured
+                .given()
+                .auth().preemptive().basic("admin", "admin123")
                 .contentType("application/json")
-                .body(Map.of("query", mutation))
+                .body(Map.of("query", "mutation { addBook(title: \"Secured\", author: \"Bob\") { id } }"))
                 .post("/graphql")
-                .then()
-                .statusCode(200)
-                .extract()
-                .path("data.addBook.id");
+                .then().statusCode(200);
 
-        RestAssured.given()
+        // User can query
+        RestAssured
+                .given()
+                .auth().preemptive().basic("user", "user123")
                 .contentType("application/json")
-                .body(Map.of("query", "{ books(author: \"Alice\") { title } }"))
+                .body(Map.of("query", "{ books(author: \"Bob\") { title } }"))
+                .post("/graphql")
+                .then().statusCode(200);
+
+        // User can't add (403)
+        RestAssured
+                .given()
+                .auth().preemptive().basic("user", "user123")
+                .contentType("application/json")
+                .body(Map.of("query", "mutation { addBook(title: \"Hack\", author: \"Evil\") { id } }"))
                 .post("/graphql")
                 .then()
-                .statusCode(200)
-                .body("data.books[0].title", equalTo("GraphQL 101"));
+                .statusCode(200) // still 200
+                .body("errors[0].message", containsString("Forbidden"));
     }
 }

@@ -1,0 +1,41 @@
+databaseChangeLog:
+  - changeSet:
+      id: 002-insert-users
+      author: you
+      changes:
+        - insert:
+            tableName: roles
+            columns:
+              - column: { name: role_name, value: ADMIN }
+        - insert:
+            tableName: roles
+            columns:
+              - column: { name: role_name, value: USER }
+
+
+        - insert:
+            tableName: users
+            columns:
+              - column: { name: username, value: admin }
+              - column: { name: password, value: "$2a$10$F7kUds0zcwhTmPdcJLWWOOrdVvl4L2PtC6lFKUB6O2LtZAHkcMNYy" } # admin123
+        - insert:
+            tableName: users
+            columns:
+              - column: { name: username, value: user }
+              - column: { name: password, value: "$2a$10$gNlnadlvaTprW25Qc2W6E.PZCmHdd.6R6fbxdh9XrkWvmbNIG8LUW" } # user123
+
+        - insert:
+            tableName: user_roles
+            columns:
+              - column: { name: username, value: admin }
+              - column: { name: role_name, value: ADMIN }
+        - insert:
+            tableName: user_roles
+            columns:
+              - column: { name: username, value: admin }
+              - column: { name: role_name, value: USER }
+        - insert:
+            tableName: user_roles
+            columns:
+              - column: { name: username, value: user }
+              - column: { name: role_name, value: USER }

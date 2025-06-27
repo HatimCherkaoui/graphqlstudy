@@ -5,6 +5,7 @@ import com.hatimcherkaoui.graphqlstudy.domain.repository.BookRepository;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 
 import java.util.List;
@@ -18,16 +19,19 @@ public class BookController {
     }
 
     @QueryMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public List<Book> books(@Argument String author) {
         return (author == null) ? repo.findAll() : repo.findByAuthor(author);
     }
 
     @QueryMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public Book bookById(@Argument Long id) {
         return repo.findById(id).orElse(null);
     }
 
     @MutationMapping
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public Book addBook(@Argument String title, @Argument String author) {
         return repo.save(new Book(title, author));
     }
