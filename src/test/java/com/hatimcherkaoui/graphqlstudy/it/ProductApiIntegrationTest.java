@@ -2,6 +2,9 @@ package com.hatimcherkaoui.graphqlstudy.it;
 
 import com.hatimcherkaoui.graphqlstudy.GraphqlstudyApplication;
 import io.restassured.RestAssured;
+import io.restassured.filter.log.ErrorLoggingFilter;
+import io.restassured.filter.log.RequestLoggingFilter;
+import io.restassured.filter.log.ResponseLoggingFilter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -16,13 +19,14 @@ import java.util.Map;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.equalTo;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = GraphqlstudyApplication.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class BookApiIntegrationTest {
+public class ProductApiIntegrationTest {
 
     static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:15")
-            .withDatabaseName("booksdb")
+            .withDatabaseName("productsdb")
             .withUsername("postgres").withPassword("postgres");
 
     static {
@@ -41,6 +45,7 @@ public class BookApiIntegrationTest {
 
     @BeforeEach
     void setUpRestAssured() {
+        RestAssured.filters(new RequestLoggingFilter(), new ResponseLoggingFilter(), new ErrorLoggingFilter());
         RestAssured.baseURI = "http://localhost";
         RestAssured.port = port;
     }
@@ -52,12 +57,22 @@ public class BookApiIntegrationTest {
 
     @Test
     void testAddAndQuery() {
+        String createMutation = """
+                    mutation {
+                      addProduct(input: { title: "PS5", description: "Like New" , price: 530.0 }) {
+                        id
+                        title
+                        description
+                        price
+                      }
+                    }
+                """;
         // Admin can add
         RestAssured
                 .given()
                 .auth().preemptive().basic("admin", "admin123")
                 .contentType("application/json")
-                .body(Map.of("query", "mutation { addBook(title: \"Secured\", author: \"Bob\") { id } }"))
+                .body(Map.of("query", createMutation))
                 .post("/graphql")
                 .then().statusCode(200);
 
@@ -66,7 +81,7 @@ public class BookApiIntegrationTest {
                 .given()
                 .auth().preemptive().basic("user", "user123")
                 .contentType("application/json")
-                .body(Map.of("query", "{ books(author: \"Bob\") { title } }"))
+                .body(Map.of("query", "{ products { title } }"))
                 .post("/graphql")
                 .then().statusCode(200);
 
@@ -75,10 +90,41 @@ public class BookApiIntegrationTest {
                 .given()
                 .auth().preemptive().basic("user", "user123")
                 .contentType("application/json")
-                .body(Map.of("query", "mutation { addBook(title: \"Hack\", author: \"Evil\") { id } }"))
+                .body(Map.of("query", "mutation { addProduct(title: \"PS5 Digital Version\", description: \"PS5 like new\", price: 550.00) { id } }"))
                 .post("/graphql")
                 .then()
                 .statusCode(200) // still 200
                 .body("errors[0].message", containsString("Forbidden"));
+    }
+
+    @Test
+    void testUpdate() {
+        // Admin can add
+        RestAssured
+                .given()
+                .auth().preemptive().basic("admin", "admin123")
+                .contentType("application/json")
+                .body(Map.of("query", "mutation { addBook(title: \"Secured\", author: \"Bob\") { id } }"))
+                .post("/graphql")
+                .then().statusCode(200);
+        String updateMutation = """
+                    mutation {
+                      updateBook(input: { id: 1, title: "Updated", author: "Updated Author" }) {
+                        id
+                        title
+                        author
+                      }
+                    }
+                """;
+        RestAssured
+                .given()
+                .auth().preemptive().basic("admin", "admin123")
+                .contentType("application/json")
+                .body(Map.of("query", updateMutation))
+                .when()
+                .post("/graphql")
+                .then()
+                .statusCode(200)
+                .body("data.updateBook.title", equalTo("Updated"));
     }
 }

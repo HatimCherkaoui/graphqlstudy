@@ -1,36 +1,27 @@
-package com.hatimcherkaoui.graphqlstudy.domain.entity;
+package com.hatimcherkaoui.graphqlstudy.model.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.proxy.HibernateProxy;
 
-import java.util.HashSet;
 import java.util.Objects;
-import java.util.Set;
 
 @Entity
-@Table(name = "users")
+@Table(name = "roles")
 @Getter
 @Setter
 @ToString
 @RequiredArgsConstructor
-public class User {
-
+public class Role {
     @Id
-    private String username;
-
-    private String password; // BCrypt encoded
-
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-            name = "user_roles",
-            joinColumns = @JoinColumn(name = "username"),
-            inverseJoinColumns = @JoinColumn(name = "role_name")
-    )
-    private Set<Role> roles = new HashSet<>();
+    @Column(name = "role_name")
+    private String roleName;
 
     @Override
     public final boolean equals(Object o) {
@@ -39,8 +30,8 @@ public class User {
         Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
         Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
         if (thisEffectiveClass != oEffectiveClass) return false;
-        User user = (User) o;
-        return getUsername() != null && Objects.equals(getUsername(), user.getUsername());
+        Role role = (Role) o;
+        return getRoleName() != null && Objects.equals(getRoleName(), role.getRoleName());
     }
 
     @Override

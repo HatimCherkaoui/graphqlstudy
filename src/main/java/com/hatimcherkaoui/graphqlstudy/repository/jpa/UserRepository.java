@@ -1,6 +1,6 @@
-package com.hatimcherkaoui.graphqlstudy.domain.repository;
+package com.hatimcherkaoui.graphqlstudy.repository.jpa;
 
-import com.hatimcherkaoui.graphqlstudy.domain.entity.User;
+import com.hatimcherkaoui.graphqlstudy.model.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

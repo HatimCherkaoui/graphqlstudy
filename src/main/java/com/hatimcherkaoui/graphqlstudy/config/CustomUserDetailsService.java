@@ -1,7 +1,7 @@
 package com.hatimcherkaoui.graphqlstudy.config;
 
-import com.hatimcherkaoui.graphqlstudy.domain.entity.User;
-import com.hatimcherkaoui.graphqlstudy.domain.repository.UserRepository;
+import com.hatimcherkaoui.graphqlstudy.model.entity.User;
+import com.hatimcherkaoui.graphqlstudy.repository.jpa.UserRepository;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

@@ -1,10 +1,10 @@
 <configuration>
     <include resource="org/springframework/boot/logging/logback/base.xml"/>
 
-    <logger name="org.springframework" level="DEBUG"/>
-    <logger name="com.yourpackage" level="DEBUG"/>
+    <logger name="org.springframework" level="INFO"/>
+    <logger name="com.hatimcherkaoui" level="INFO"/>
 
-    <root level="DEBUG">
+    <root level="INFO">
         <appender-ref ref="CONSOLE"/>
     </root>
 </configuration>

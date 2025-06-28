@@ -1,14 +1,40 @@
-type Book {
+type Product {
     id: ID!
     title: String!
-    author: String!
+    description: String!
+    price: Float!
+}
+
+input CreateProductInput {
+    title: String!
+    description: String!
+    price: Float!
+}
+
+input UpdateProductInput {
+    id: ID!
+    title: String!
+    description: String!
+    price: Float!
+}
+
+type ShowProductOutput {
+    id: ID
+    title: String
+    description: String
+    price: Float
+    createdAt: String
+    updatedAt: String
+}
+
+
+type Mutation {
+    addProduct(input: CreateProductInput!): ShowProductOutput!
+    updateProduct(input: UpdateProductInput!): ShowProductOutput
+    deleteProduct(id: ID!): Boolean
 }
 
 type Query {
-    books(author: String): [Book!]!
-    bookById(id: ID!): Book
-}
-
-type Mutation {
-    addBook(title: String!, author: String!): Book!
+    products: [ShowProductOutput!]!
+    productById(id: ID!): ShowProductOutput
 }

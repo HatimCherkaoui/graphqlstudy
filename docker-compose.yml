@@ -3,7 +3,7 @@ services:
   db:
     image: postgres:15
     environment:
-      POSTGRES_DB: booksdb
+      POSTGRES_DB: productsdb
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     volumes:
@@ -16,7 +16,7 @@ services:
     environment:
       DB_HOST: db
       DB_PORT: 5432
-      DB_NAME: booksdb
+      DB_NAME: productsdb
       DB_USER: postgres
       DB_PASS: postgres
     depends_on:
